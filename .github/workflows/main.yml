@@ -1,0 +1,38 @@
+name: Flutter CI/CD
+ 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+ 
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.3'  # Replace with your desired Flutter version
+ 
+      - name: Install dependencies
+        run: flutter pub get
+ 
+      - name: Run tests
+        run: flutter test
+ 
+      - name: Build app
+        run: flutter build apk --release
+ 
+      - name: Deploy to server (optional)
+        env:
+          DEPLOY_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          echo "Deploying to server..."
+          curl -X POST -F "file=@build/app/outputs/flutter-apk/app-release.apk" https://httpbin.org/post
