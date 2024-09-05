@@ -20,13 +20,13 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.3'  # Use stable Flutter version
+          flutter-version: '3.22.3'
 
       # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Run Flutter doctor (optional for diagnosing environment)
+      # Run Flutter doctor
       - name: Flutter doctor
         run: flutter doctor
 
@@ -38,22 +38,21 @@ jobs:
       - name: Build app (APK)
         run: flutter build apk --release
 
-      # List APK files (debugging step to ensure APK was built)
+      # List APK files (debugging step)
       - name: List APKs
         run: ls -alh build/app/outputs/flutter-apk/
 
-      # Upload APK as an artifact
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+      # (Optional) Test server connection
+      - name: Test server connection
+        run: curl -I https://your-real-server.com  # Replace with your actual server URL
 
-      # (Optional) Deploy to server (only if needed)
+      # Deploy to server (optional)
       - name: Deploy to server
         if: success()
         env:
           DEPLOY_TOKEN: ${{ secrets.TOKEN }}
         run: |
           echo "Deploying APK to server..."
-          curl -X POST -F "file=@build/app/outputs/flutter-apk/app-release.apk" https://your-server-endpoint/upload
+          curl -X POST -H "Authorization: Bearer $TOKEN" \
+               -F "file=@build/app/outputs/flutter-apk/app-release.apk" \
+               https://your-real-server.com/api/upload  # Replace with actual endpoint
